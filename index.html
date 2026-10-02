@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="tl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Strata</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect y='3' width='32' height='6' fill='%23FD9A52'/%3E%3Crect y='10' width='32' height='6' fill='%237FC64E'/%3E%3Crect y='17' width='32' height='6' fill='%2334B2C9'/%3E%3Crect y='24' width='32' height='6' fill='%23CB8C37'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#E9ECE6; --surface:#F6F8F4; --ink:#1F2A2E; --muted:#56656A; --line:#C3CCC6;
+  --accent:#2F6F62; --on-accent:#FFFFFF; --rock-ink:#1F2A2E;
+  --serif:"Iowan Old Style","Charter","Bitstream Charter","Sitka Text",Cambria,Georgia,serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1A2023; --surface:#232B2F; --ink:#E3E8E4; --muted:#9AA7A9; --line:#3A464A;
+    --accent:#7CC3B2; --on-accent:#10201C; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1A2023; --surface:#232B2F; --ink:#E3E8E4; --muted:#9AA7A9; --line:#3A464A;
+  --accent:#7CC3B2; --on-accent:#10201C; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:16px/1.55 var(--sans);
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:calc(76px + env(safe-area-inset-bottom,0px));
+}
+main{max-width:560px; margin:0 auto; padding:0 16px}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--serif); font-weight:600; line-height:1.15; margin:0}
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important; transition:none!important}}
+
+header.top{padding:28px 0 18px}
+header.top h1{font-size:2.6rem; letter-spacing:-0.01em}
+header.top p{margin:6px 0 0; color:var(--muted)}
+.banner{background:#F9E3B0; color:#3B2E10; padding:10px 14px; border-radius:8px; margin:0 0 14px; font-size:.92rem}
+
+.btn{font:inherit; font-size:.95rem; color:var(--ink); background:transparent;
+  border:1px solid var(--line); border-radius:8px; padding:9px 14px; cursor:pointer}
+.btn.primary{background:var(--accent); color:var(--on-accent); border-color:var(--accent)}
+.btn.danger{color:#A23B2C; border-color:#D9A69D}
+.btn.small{padding:5px 10px; font-size:.85rem}
+.row{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+label.f{display:block; margin:0 0 12px; font-size:.9rem; color:var(--muted)}
+label.f input, label.f textarea, label.f select{
+  display:block; width:100%; margin-top:4px; font:16px/1.4 var(--sans); color:var(--ink);
+  background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px}
+textarea{min-height:110px; resize:vertical}
+
+.add-layer{margin:0 0 10px}
+.column{display:flex; flex-direction:column-reverse; border:1px solid var(--line); border-radius:10px; overflow:hidden}
+.layer{
+  --c:#ccc; position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px;
+  width:100%; min-height:58px; padding:10px 14px 10px 26px; text-align:left;
+  font:inherit; color:var(--ink); background:var(--surface); border:0; border-top:1px solid var(--line); cursor:pointer}
+.column .layer:last-child{border-top:0}
+.layer::before{content:""; position:absolute; left:0; top:0; bottom:0; width:10px; background:var(--c)}
+.layer[data-s="exploring"]::before{width:18px; background:repeating-linear-gradient(135deg,var(--c) 0 5px,transparent 5px 9px)}
+.layer[data-s="explored"]{background:var(--c); color:var(--rock-ink)}
+.layer[data-s="explored"]::before{background:rgba(0,0,0,.12)}
+.layer .lt{font-family:var(--serif); font-size:1.06rem}
+.layer .ls{font-size:.8rem; opacity:.75; white-space:nowrap}
+.ground{margin:10px 2px 0; padding-top:10px; color:var(--muted); font-size:.9rem; border-top:3px double var(--line)}
+.tally{color:var(--muted); font-size:.9rem; margin:0 0 12px}
+
+.list{display:flex; flex-direction:column; gap:10px; margin:12px 0}
+.note{text-align:left; font:inherit; color:var(--ink); width:100%; cursor:pointer;
+  background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:12px 14px}
+.note .meta{font-size:.82rem; color:var(--muted); margin-bottom:4px}
+.note .body{white-space:pre-wrap}
+.empty{color:var(--muted); padding:18px 0}
+section.block{margin:26px 0}
+section.block h2{font-size:1.35rem; margin-bottom:8px}
+section.block p{margin:6px 0}
+.gift{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px 18px;
+  font-family:var(--serif); font-size:1.08rem; line-height:1.6; white-space:pre-wrap}
+.gift .sig{display:block; text-align:right; margin-top:8px; color:var(--muted)}
+.lib-item{display:flex; justify-content:space-between; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--line)}
+.lib-item small{display:block; color:var(--muted)}
+.kind{font-size:.75rem; color:var(--muted); border:1px solid var(--line); border-radius:4px; padding:0 5px; margin-right:6px}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden}
+.seg button{font:inherit; font-size:.9rem; border:0; background:transparent; color:var(--ink); padding:8px 12px; cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--on-accent)}
+.credits{font-size:.85rem; color:var(--muted)}
+.lang-switch{display:flex; justify-content:flex-end; padding-top:12px}
+
+nav.tabs{position:fixed; left:0; right:0; bottom:0; z-index:5; display:flex; justify-content:center; gap:4px;
+  background:var(--surface); border-top:1px solid var(--line); padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px))}
+nav.tabs button{flex:1; max-width:180px; font:inherit; font-size:.92rem; color:var(--muted);
+  background:transparent; border:0; border-radius:8px; padding:10px 6px; cursor:pointer}
+nav.tabs button[aria-current="page"]{color:var(--ink); background:var(--bg); font-weight:600}
+.tab[hidden]{display:none}
+
+dialog.sheet{width:min(560px,100%); max-width:100%; max-height:88vh; margin:auto auto 0; padding:0;
+  border:0; border-radius:16px 16px 0 0; background:var(--surface); color:var(--ink)}
+dialog.sheet::backdrop{background:rgba(10,15,17,.45)}
+.sheet-in{padding:20px 18px calc(22px + env(safe-area-inset-bottom,0px))}
+.sheet-in h2{font-size:1.5rem; margin-bottom:12px}
+.sheet-in h3{font-size:1.05rem; margin:18px 0 6px}
+.swatch{display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:-2px; margin-right:6px}
+.res{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line)}
+.close-x{float:right}
+</style>
+</head>
+<body>
+<main>
+  <div class="lang-switch">
+    <div class="seg langSeg" role="group" aria-label="Wika" data-i18n-aria-label="language">
+      <button data-lang="en" lang="en">English</button><button data-lang="tl" lang="tl">Tagalog</button>
+    </div>
+  </div>
+  <div id="banner"></div>
+
+  <div class="tab" id="tab-strata">
+    <header class="top">
+      <h1 id="appTitle">Strata</h1>
+      <p data-i18n="tagline"></p>
+    </header>
+    <p class="tally" id="tally"></p>
+    <div class="add-layer"><button class="btn small" id="addLayer" data-i18n="addLayer"></button></div>
+    <div class="column" id="column"></div>
+    <p class="ground" data-i18n="ground"></p>
+  </div>
+
+  <div class="tab" id="tab-notes" hidden>
+    <header class="top">
+      <h1 data-i18n="notesTitle"></h1>
+      <p data-i18n="notesIntro"></p>
+    </header>
+    <button class="btn primary" id="addNote" data-i18n="newNote"></button>
+    <div class="list" id="notes"></div>
+  </div>
+
+  <div class="tab" id="tab-more" hidden>
+    <header class="top"><h1 data-i18n="more"></h1></header>
+    <section class="block"><div class="gift" id="giftCard"></div></section>
+
+    <section class="block">
+      <h2 data-i18n="library"></h2>
+      <p class="credits" data-i18n="libIntro"></p>
+      <div id="library"></div>
+      <div class="row" style="margin-top:10px"><button class="btn small" id="addLib" data-i18n="addLib"></button></div>
+    </section>
+
+    <section class="block">
+      <h2 data-i18n="listening"></h2>
+      <p data-i18n="listenText"></p>
+      <p data-i18n="listenNote"></p>
+    </section>
+
+    <section class="block">
+      <h2 data-i18n="language"></h2>
+      <div class="seg langSeg" role="group" aria-label="Wika" data-i18n-aria-label="language">
+        <button data-lang="en" lang="en">English</button><button data-lang="tl" lang="tl">Tagalog</button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2 data-i18n="appearance"></h2>
+      <div class="seg" id="themeSeg">
+        <button data-theme="auto" data-i18n="auto"></button><button data-theme="light" data-i18n="light"></button><button data-theme="dark" data-i18n="dark"></button>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2 data-i18n="backup"></h2>
+      <p data-i18n="backupText"></p>
+      <div class="row">
+        <button class="btn" id="exportBtn" data-i18n="exportBtn"></button>
+        <button class="btn" id="importBtn" data-i18n="importBtn"></button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2 data-i18n="startOver"></h2>
+      <p data-i18n="resetText"></p>
+      <button class="btn danger" id="resetBtn" data-i18n="startOver"></button>
+    </section>
+
+    <section class="block credits"><p data-i18n="credits"></p></section>
+  </div>
+</main>
+
+<nav class="tabs" aria-label="Mga seksiyon" data-i18n-aria-label="sections">
+  <button data-tab="strata" data-i18n="tabStrata" aria-current="page"></button>
+  <button data-tab="notes" data-i18n="tabNotes"></button>
+  <button data-tab="more" data-i18n="more"></button>
+</nav>
+
+<dialog class="sheet" id="sheet"><div class="sheet-in" id="sheetIn"></div></dialog>
+
+<script>
+/* =====================================================================
+   EDIT THIS PART: your gift message.
+   to:   her name, inside the quotes (leave "" to show no name)
+   from: your name
+   lang: the language Strata opens in the first time: "en" or "tl".
+         She can switch at any time.
+   note: what she sees the first time she opens the app (and under "More").
+         There is one version per language: en (English) and tl (Tagalog).
+         She sees the one matching her language setting. If you change
+         one, change the other to match, or replace the whole note: { ... }
+         block with a single message in quotes, e.g. note: "Hi!",
+         which is then shown in both languages.
+         
+ starts a new line; 
+
+ leaves a blank line.
+   ===================================================================== */
+const GIFT = {
+  to: "Jane",
+  from: "Jake",
+  lang: "tl",
+  note: {
+    en: "A small place to keep your geology.\n\nNo deadlines and no streaks: read, listen, wander, skip around. Every layer, link and note in here is yours to change.",
+    tl: "Isang munting lugar para sa pag-aaral mo ng heolohiya.\n\nWalang takdang petsa at walang pagsubaybay sa magkakasunod na araw ng paggamit: magbasa, makinig, maggalugad, at lumipat sa alinmang paksa. Malaya mong mababago ang bawat patong, kawing at tala rito."
+  }
+};
+
+/* ---------- Translations ---------- */
+const I18N = {
+  en: {
+    tagline: "Your geology, one layer at a time.",
+    titleWithName: "{name}'s strata",
+    tally0: "Nothing explored yet. Tap any layer to begin.",
+    tally1: "1 layer explored so far.",
+    tallyN: "{n} layers explored so far.",
+    addLayer: "Add a layer",
+    ground: "Start at the bottom. In sedimentary layers that have not been overturned or disturbed, the oldest lies lowest, so your first layer is down here too.",
+    stExploring: "exploring", stExplored: "explored",
+    segNew: "Not yet", segExploring: "Exploring", segExplored: "Explored",
+    tabStrata: "Strata", tabNotes: "Field notes", more: "More",
+    notesTitle: "Field notes",
+    notesIntro: "Things you noticed, wondered about, or picked up on a walk.",
+    newNote: "New note",
+    notesEmpty: "No notes yet. Write down anything: a rock on a hike, a question from a chapter, a word to look up.",
+    library: "Library",
+    libIntro: "Whole books, podcasts and sites to dip into. Add your own.",
+    addLib: "Add to library", libEmpty: "The library is empty.", remove: "Remove",
+    listening: "Listening",
+    listenText: `Your phone may be able to read web-page text aloud. In its accessibility settings, look for "Read & Speak" on iPhone ("Spoken Content" on older versions), or "Select to Speak" on Android. Names and availability depend on your device, software version and browser. Keep the screen handy for diagrams and photos.`,
+    listenNote: "The books by Earle and Johnson and the Geology Bites conversations are in English. Hong Kong Geology is available in English and Chinese. Changing the language here does not translate those resources.",
+    language: "Language", english: "English", tagalog: "Tagalog", sections: "Sections",
+    appearance: "Appearance", auto: "Auto", light: "Light", dark: "Dark",
+    backup: "Backup",
+    backupText: "Your notes and changes are stored only in this browser on this device. Strata does not send them elsewhere. Clearing this browser's stored data erases them, so save a backup now and then.",
+    exportBtn: "Save a backup file", importBtn: "Restore from backup",
+    backupFilename: "strata-backup-",
+    startOver: "Start over",
+    resetText: "Puts back the starter layers and library, and deletes your notes.",
+    credits: "Strata links to these free resources; rights in them remain with their authors, publishers and other rights holders. Physical Geology, 2nd ed. by Steven Earle (BCcampus, CC BY 4.0, except where otherwise noted). An Introduction to Geology by Johnson, Affolter, Inkenbrandt and Mosher (CC BY-NC-SA 4.0, except where otherwise noted). Hong Kong Geology by the Hong Kong Geological Survey, CEDD. Geology Bites by Oliver Strimpel. Layer colours are loosely inspired by the international geological time-scale chart.",
+    banner: "This browser is not letting Strata save. Changes will be lost when you close the page. Try opening it in your normal browser rather than a private window.",
+    close: "Close", links: "Links", noLinks: "No links yet.", addLink: "Add a link",
+    layerNotes: "Your notes on this layer", notePh: "Questions, summaries, things that surprised you…",
+    arrange: "Arrange", moveLower: "Move lower", moveHigher: "Move higher",
+    recolour: "Change colour", rename: "Rename", deleteLayer: "Delete layer",
+    confirmRemoveLink: "Remove this link?",
+    addLinkTo: "Add a link to {t}", name: "Name", url: "Web address", type: "Type", addLinkBtn: "Add link",
+    kRead: "Read", kListen: "Listen", kWatch: "Watch", kOther: "Link",
+    renameTitle: "Rename layer", saveName: "Save name",
+    confirmDeleteLayer: `Delete "{t}" and its links and notes? Field notes tagged with it are kept.`,
+    editNote: "Edit note", saveNote: "Save note", addNoteBtn: "Add note",
+    noteLbl: "Note", date: "Date", place: "Place (optional)", layerOpt: "Layer (optional)", none: "None",
+    del: "Delete", confirmDeleteNote: "Delete this note?",
+    whatExplore: "What do you want to explore?", addLayerBtn: "Add layer",
+    add: "Add", shortNote: "Short note (optional)", confirmRemoveLib: "Remove this from the library?",
+    confirmRestore: "Replace everything in Strata in this browser with this backup?",
+    restored: "Backup restored.",
+    badBackup: "That file isn't a Strata backup, so nothing was changed.",
+    confirmReset: "Start over? This deletes your notes and changes and puts back the starter layers and library.",
+    hello: "Hello", forName: "For {name}", open: "Open Strata", from: "from {name}",
+    chapter: "Physical Geology, chapter {n}",
+    hkResource: "Hong Kong Geology: A 400-Million Year Journey (CEDD)",
+    layers: ["Introduction to geology","Minerals","Igneous rocks (from solidified magma or lava)","Volcanoes","Weathering and soil",
+      "Sediments and sedimentary rocks","Metamorphic rocks","Deep time: measuring geological time","Earth's interior",
+      "Plate tectonics","Earthquakes","Folds and faults","Rivers and floods","Groundwater","Downslope movement of soil and rock (mass wasting)",
+      "Glaciers","Coastlines","The ocean floor","Climate change","Earth's geological resources",
+      "Origin of Earth and the solar system","Hong Kong's rocks"],
+    lib: {
+      earle: {label: "Physical Geology, 2nd ed. (Steven Earle)", note: "The main textbook. Free to read online or download as EPUB."},
+      glossary: {label: "Physical Geology glossary", note: "Look up any term."},
+      opengeo: {label: "An Introduction to Geology (OpenGeology)", note: "A second free textbook, with chapter quizzes."},
+      bites: {label: "Geology Bites podcast", note: "~30-minute conversations with researchers. Best once the basics feel familiar."},
+      hk: {label: "Hong Kong Geology (CEDD)", note: "Local rocks and places to see them, in English and Chinese."}
+    }
+  },
+  tl: {
+    tagline: "Ang pag-aaral mo ng heolohiya, paisa-isang patong.",
+    titleWithName: "Strata ni {name}",
+    tally0: "Wala ka pang nagalugad na patong. Pindutin ang alinmang patong para magsimula.",
+    tally1: "1 patong na ang nagalugad mo sa ngayon.",
+    tallyN: "{n} patong na ang nagalugad mo sa ngayon.",
+    addLayer: "Magdagdag ng patong",
+    ground: "Magsimula sa ibaba. Sa mga patong na sedimentaryong hindi nabaligtad o nagulo, nasa pinakailalim ang pinakamatanda. Kaya nasa ibaba rin ang una mong patong.",
+    stExploring: "ginagalugad", stExplored: "nagalugad na",
+    segNew: "Hindi pa", segExploring: "Ginagalugad", segExplored: "Nagalugad na",
+    tabStrata: "Strata", tabNotes: "Mga tala", more: "Iba pa",
+    notesTitle: "Mga tala sa paggalugad",
+    notesIntro: "Mga napansin mo, mga tanong na naisip mo, o mga napulot mo habang naglalakad.",
+    newNote: "Bagong tala",
+    notesEmpty: "Wala pang tala. Isulat ang kahit ano: isang batong nakita sa paglalakad, tanong mula sa isang kabanata, o salitang nais mong alamin ang kahulugan.",
+    library: "Aklatan",
+    libIntro: "Mga buong aklat, serye ng usapang mapapakinggan at mga pook sa internet na maaari mong galugarin. Maaari ka ring magdagdag ng iba.",
+    addLib: "Idagdag sa aklatan", libEmpty: "Walang laman ang aklatan.", remove: "Alisin",
+    listening: "Pakikinig",
+    listenText: `Maaaring basahin nang malakas ng telepono mo ang teksto ng mga pahina sa internet. Sa mga pagsasaayos para sa mas madaling paggamit (Accessibility), hanapin ang "Read & Speak" sa iPhone ("Spoken Content" sa mas lumang mga bersiyon), o "Select to Speak" sa Android. Nakadepende ang pangalan at pagkakaroon ng tampok sa iyong kagamitan, bersiyon ng sistema at browser. Tingnan pa rin ang mga diyagram at larawan habang nakikinig.`,
+    listenNote: "Ang mga aklat nina Earle at Johnson at ang mga usapan sa Geology Bites ay nasa Ingles. May bersiyong Ingles at Tsino ang Hong Kong Geology. Hindi binabago ng pagpili ng Tagalog dito ang wika ng mga mapagkukunang iyon.",
+    language: "Wika", english: "Ingles", tagalog: "Tagalog", sections: "Mga seksiyon",
+    appearance: "Anyo", auto: "Awtomatiko", light: "Maliwanag", dark: "Madilim",
+    backup: "Reserbang kopya",
+    backupText: "Ang iyong mga tala at pagbabago ay nakatago lamang sa browser na ito sa kagamitang ginagamit mo. Hindi ipinapadala ng Strata ang mga ito sa iba. Mabubura ang mga ito kapag binura ang nakaimbak na datos ng browser, kaya magtabi ng reserbang kopya paminsan-minsan.",
+    exportBtn: "Magtabi ng reserbang kopya", importBtn: "Ibalik mula sa reserbang kopya",
+    backupFilename: "strata-reserbang-kopya-",
+    startOver: "Magsimula muli",
+    resetText: "Ibinabalik ang mga panimulang patong at aklatan, at binubura ang mga tala at pagbabagong ginawa mo.",
+    credits: "Nagbibigay ang Strata ng mga kawing sa mga libreng mapagkukunang ito; nananatili sa mga may-akda, tagapaglathala at iba pang may hawak ng karapatan ang mga karapatan sa mga ito. Heolohiyang Pisikal (Physical Geology), ikalawang edisyon, ni Steven Earle (BCcampus, CC BY 4.0, maliban sa mga bahaging may ibang nakasaad). Panimula sa Heolohiya (An Introduction to Geology) nina Johnson, Affolter, Inkenbrandt at Mosher (CC BY-NC-SA 4.0, maliban sa mga bahaging may ibang nakasaad). Heolohiya ng Hong Kong (Hong Kong Geology) ng Hong Kong Geological Survey, CEDD. Geology Bites ni Oliver Strimpel. Malayang hango ang mga kulay ng mga patong sa pandaigdigang tsart ng panahong heolohiko.",
+    banner: "Hindi pinapayagan ng browser na ito na magtago ng datos ang Strata. Mawawala ang mga pagbabago kapag isinara mo ang pahina. Subukang buksan ito sa karaniwang bintana ng browser sa halip na sa pribadong bintana.",
+    close: "Isara", links: "Mga kawing", noLinks: "Wala pang kawing.", addLink: "Magdagdag ng kawing",
+    layerNotes: "Mga tala mo sa patong na ito", notePh: "Mga tanong, buod, mga bagay na ikinagulat mo…",
+    arrange: "Ayusin", moveLower: "Ibaba", moveHigher: "Itaas",
+    recolour: "Palitan ang kulay", rename: "Palitan ang pangalan", deleteLayer: "Burahin ang patong",
+    confirmRemoveLink: "Alisin ang kawing na ito?",
+    addLinkTo: "Magdagdag ng kawing sa {t}", name: "Pangalan", url: "Adres sa internet", type: "Uri", addLinkBtn: "Idagdag ang kawing",
+    kRead: "Basahin", kListen: "Pakinggan", kWatch: "Panoorin", kOther: "Kawing",
+    renameTitle: "Palitan ang pangalan ng patong", saveName: "Itala ang pangalan",
+    confirmDeleteLayer: `Burahin ang "{t}" kasama ang mga kawing at tala nito? Mananatili ang mga tala sa paggalugad na iniugnay mo sa patong na ito.`,
+    editNote: "Baguhin ang tala", saveNote: "Itala ang mga pagbabago", addNoteBtn: "Idagdag ang tala",
+    noteLbl: "Tala", date: "Petsa", place: "Lugar (kung nais)", layerOpt: "Patong (kung nais)", none: "Wala",
+    del: "Burahin", confirmDeleteNote: "Burahin ang talang ito?",
+    whatExplore: "Ano ang gusto mong galugarin?", addLayerBtn: "Idagdag ang patong",
+    add: "Idagdag", shortNote: "Maikling tala (kung nais)", confirmRemoveLib: "Alisin ito sa aklatan?",
+    confirmRestore: "Palitan ang lahat ng laman ng Strata sa browser na ito ng laman ng reserbang kopyang ito?",
+    restored: "Naibalik na ang mga datos mula sa reserbang kopya.",
+    badBackup: "Ang napili mo ay hindi reserbang kopya ng Strata, kaya walang binago.",
+    confirmReset: "Magsimula muli? Buburahin ang mga tala at pagbabagong ginawa mo, at ibabalik ang mga panimulang patong at aklatan.",
+    hello: "Kumusta", forName: "Para kay {name}", open: "Buksan ang Strata", from: "mula kay {name}",
+    chapter: "Heolohiyang Pisikal (Physical Geology), kabanata {n}",
+    hkResource: "Heolohiya ng Hong Kong: isang paglalakbay sa 400 milyong taon (Hong Kong Geology, CEDD)",
+    layers: ["Panimula sa heolohiya","Mga mineral","Mga batong igneous (mula sa tumigas na magma o lava)","Mga bulkan","Pagkadurog at kemikal na pagbabago ng bato (weathering); lupa",
+      "Mga latak (sediment) at batong sedimentaryo","Mga batong metamorpiko","Napakahabang panahong heolohiko at ang pagsukat nito","Ang loob ng Daigdig",
+      "Paggalaw at ugnayan ng mga bahagi ng litospera (plate tectonics)","Mga lindol","Mga tupi at bitak na may pag-usog (fault)","Mga ilog at baha","Tubig sa ilalim ng lupa","Paggalaw pababa ng lupa at bato dahil sa grabidad (mass wasting)",
+      "Mga glacier (gumagalaw na masa ng yelo sa lupa)","Mga baybayin","Ang ilalim ng karagatan","Pagbabago ng klima","Mga yamang heolohiko ng Daigdig",
+      "Pinagmulan ng Daigdig at ng sistemang solar","Mga bato ng Hong Kong"],
+    lib: {
+      earle: {label: "Heolohiyang Pisikal (Physical Geology), ikalawang edisyon — Steven Earle", note: "Ang pangunahing aklat. Libreng basahin sa internet o kumuha ng kopyang EPUB. Nasa Ingles."},
+      glossary: {label: "Talahulugan ng Heolohiyang Pisikal (Physical Geology)", note: "Hanapin ang kahulugan ng mga termino sa aklat. Nasa Ingles."},
+      opengeo: {label: "Panimula sa Heolohiya (An Introduction to Geology, OpenGeology)", note: "Isa pang libreng aklat na may mga pagsusulit sa mga kabanata. Nasa Ingles."},
+      bites: {label: "Geology Bites — mga usapang pangheolohiya", note: "Mga usapan kasama ang mga mananaliksik, na humigit-kumulang 30 minuto bawat isa. Mas mainam kapag pamilyar ka na sa mga batayan. Nasa Ingles."},
+      hk: {label: "Heolohiya ng Hong Kong (Hong Kong Geology, CEDD)", note: "Mga bato sa Hong Kong at mga lugar kung saan makikita ang mga ito. Nasa Ingles at Tsino."}
+    }
+  }
+};
+
+/* Notes on the Tagalog translation (reviewed by ChatGPT, 2 October 2026;
+   still worth checking with a fluent speaker).
+   - Tagalog descriptions of technical terms are plain explanations, not
+     claims about official or standard terminology.
+   - English technical terms are kept in brackets so they match the
+     English textbook she will be reading.
+   - Book titles, names, licence abbreviations and phone menu names are
+     kept in their original form so they are easy to recognise. Tagalog
+     book titles are translations made for Strata, not titles of
+     published Tagalog editions; the resources themselves are not
+     translated.
+   - Sources consulted (per ChatGPT): Earle's Physical Geology glossary and
+     chapters 1.6, 5.1, 10.4, 15.2 and 16.2; Diksiyonaryo.ph; the publishers'
+     pages for the other resources; Apple and Google accessibility guides.
+*/
+
+/* ---------- Starter content ---------- */
+const BOOK = "https://opentextbc.ca/physicalgeology2ed/";
+const HK_URL = "https://hkss.cedd.gov.hk/hkss/en/publications-and-resources/educational-materials/hong-kong-geology/index.html";
+const COLORS = ["#F9F97F","#FD9A52","#7FC64E","#34B2C9","#BD8CC3","#CB8C37","#B3E1B6","#67A599","#FED96A","#F4A08C","#9AD9DD","#C6D97F"];
+const SEED = [ // [chapter path, chapter number]; names come from I18N.layers in the same order
+  ["part/chapter-1-introduction-to-geology/",1],["part/chapter-2/",2],["part/chapter-3-intrusive-igneous-rocks/",3],
+  ["part/chapter-4-volcanism/",4],["part/chapter-5-weathering-and-soil/",5],["part/chapter-6-sediments-and-sedimentary-rocks/",6],
+  ["part/chapter-7-metamorphism-and-metamorphic-rocks/",7],["part/chapter-8-measuring-geological-time/",8],["part/chapter-9-earths-interior/",9],
+  ["part/chapter-10-plate-tectonics/",10],["part/chapter-11-earthquakes/",11],["part/chapter-12-geological-structures/",12],
+  ["part/chapter-13-streams-and-floods/",13],["part/chapter-14-groundwater/",14],["part/chapter-15-mass-wasting/",15],
+  ["part/chapter-16-glaciation/",16],["part/chapter-17-shorelines/",17],["part/chapter-18-geology-of-the-oceans/",18],
+  ["part/chapter-19-climate-change/",19],["part/chapter-20-geological-resources/",20],
+  ["part/chapter-22-the-origin-of-earth-and-the-solar-system/",22]
+];
+const LIBRARY = [
+  {key:"earle", url:BOOK, kind:"read"},
+  {key:"glossary", url:BOOK+"back-matter/glossary/", kind:"read"},
+  {key:"opengeo", url:"https://slcc.pressbooks.pub/introgeology/", kind:"read"},
+  {key:"bites", url:"https://geologybites.com/", kind:"listen"},
+  {key:"hk", url:HK_URL, kind:"read"}
+];
+const KIND_KEYS = {read:"kRead", listen:"kListen", watch:"kWatch", other:"kOther"};
+
+/* ---------- Helpers ---------- */
+const KEY = "strata-v1";
+const $ = s => document.querySelector(s);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const today = () => { const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const cleanUrl = u => { u = String(u||"").trim(); if (!u) return ""; return /^https?:\/\//i.test(u) ? u : "https://" + u; };
+
+function t(key, vars){
+  const dict = I18N[state && state.lang] || I18N.en;
+  let s = dict[key] !== undefined ? dict[key] : (I18N.en[key] !== undefined ? I18N.en[key] : key);
+  if (vars && typeof s === "string") for (const k in vars) s = s.split("{" + k + "}").join(vars[k]);
+  return s;
+}
+const kindLabel = k => t(KIND_KEYS[k] || "kOther");
+const layerTitle = l => (l.key != null && !l.renamed && t("layers")[l.key]) || l.title;
+const resLabel = r => r.ch ? t("chapter", {n: r.ch}) :
+  ((r.key === "hk" || (r.url === HK_URL && r.label === I18N.en.hkResource)) ? t("hkResource") : r.label);
+const libText = r => { const L = r.key && t("lib")[r.key]; return L ? L : {label: r.label, note: r.note}; };
+
+function seedState(){
+  const starterDict = I18N[GIFT.lang] || I18N.tl;
+  const names = starterDict.layers;
+  const layers = SEED.map((s,i) => ({
+    id: uid(), key: i, title: names[i], renamed: false, color: COLORS[i % COLORS.length], status: "new", note: "",
+    res: [{id: uid(), ch: s[1], label: starterDict.chapter.replace("{n}", s[1]), url: BOOK + s[0], kind: "read"}]
+  }));
+  const hk = names.length - 1;
+  layers.push({id: uid(), key: hk, title: names[hk], renamed: false, color: COLORS[layers.length % COLORS.length], status: "new", note: "",
+    res: [{id: uid(), key: "hk", label: starterDict.hkResource, url: HK_URL, kind: "read"}]});
+  return { v: 1, welcomed: false, theme: "auto", lang: GIFT.lang === "tl" ? "tl" : "en", layers, notes: [],
+    library: LIBRARY.map(l => ({id: uid(), ...l, ...starterDict.lib[l.key]})) };
+}
+
+/* ---------- Storage ---------- */
+let storageOK = true;
+function load(){
+  try {
+    localStorage.setItem(KEY + "-test", "1"); localStorage.removeItem(KEY + "-test");
+    const raw = localStorage.getItem(KEY);
+    if (raw) { const d = JSON.parse(raw); if (d && Array.isArray(d.layers)) return normalise(d); }
+  } catch (e) { storageOK = false; }
+  return seedState();
+}
+function normalise(d){
+  d.notes = Array.isArray(d.notes) ? d.notes : [];
+  d.library = Array.isArray(d.library) ? d.library : [];
+  d.layers.forEach(l => { l.res = Array.isArray(l.res) ? l.res : []; if (!["new","exploring","explored"].includes(l.status)) l.status = "new"; });
+  d.theme = d.theme || "auto";
+  d.lang = d.lang === "tl" ? "tl" : "en";
+  return d;
+}
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(state)); storageOK = true; }
+  catch (e) { storageOK = false; }
+  renderBanner();
+}
+let state = load();
+
+/* ---------- Rendering ---------- */
+function renderBanner(){ $("#banner").innerHTML = storageOK ? "" : `<p class="banner">${esc(t("banner"))}</p>`; }
+function applyLang(){
+  document.documentElement.lang = state.lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+    if (el.tagName === "P") el.hidden = !el.textContent;
+  });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach(el => el.setAttribute("aria-label", t(el.dataset.i18nAriaLabel)));
+  document.querySelectorAll(".langSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === state.lang)));
+}
+function renderStrata(){
+  $("#appTitle").textContent = GIFT.to ? t("titleWithName", {name: GIFT.to}) : "Strata";
+  const st = {new: "", exploring: t("stExploring"), explored: t("stExplored")};
+  $("#column").innerHTML = state.layers.map(l =>
+    `<button class="layer" data-id="${l.id}" data-s="${l.status}" style="--c:${esc(l.color)}">
+       <span class="lt">${esc(layerTitle(l))}</span><span class="ls">${esc(st[l.status])}</span>
+     </button>`).join("");
+  const n = state.layers.filter(l => l.status === "explored").length;
+  $("#tally").textContent = n === 0 ? t("tally0") : (n === 1 ? t("tally1") : t("tallyN", {n}));
+}
+function renderNotes(){
+  const box = $("#notes");
+  if (!state.notes.length){ box.innerHTML = `<p class="empty">${esc(t("notesEmpty"))}</p>`; return; }
+  const sorted = [...state.notes].sort((a,b) => (b.date||"").localeCompare(a.date||""));
+  box.innerHTML = sorted.map(n => {
+    const layer = state.layers.find(l => l.id === n.layerId);
+    const meta = [n.date, n.place, layer ? layerTitle(layer) : ""].filter(Boolean).map(esc).join(", ");
+    return `<button class="note" data-id="${n.id}"><div class="meta">${meta}</div><div class="body">${esc(n.text)}</div></button>`;
+  }).join("");
+}
+function giftHTML(){
+  const note = typeof GIFT.note === "string" ? GIFT.note : (GIFT.note[state.lang] || GIFT.note.tl || GIFT.note.en || "");
+  return esc(note) + (GIFT.from ? `<span class="sig">${esc(t("from", {name: GIFT.from}))}</span>` : "");
+}
+function renderMore(){
+  $("#giftCard").innerHTML = giftHTML();
+  $("#library").innerHTML = state.library.length ? state.library.map(r => { const L = libText(r); return `
+    <div class="lib-item"><div><span class="kind">${esc(kindLabel(r.kind))}</span><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(L.label)}</a>${L.note ? `<small>${esc(L.note)}</small>` : ""}</div>
+     <button class="btn small" data-remove-lib="${r.id}">${esc(t("remove"))}</button></div>`; }).join("")
+    : `<p class="empty">${esc(t("libEmpty"))}</p>`;
+  document.querySelectorAll("#themeSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.theme === state.theme)));
+}
+function applyTheme(){
+  if (state.theme === "auto") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", state.theme);
+}
+function renderAll(){ applyLang(); renderBanner(); renderStrata(); renderNotes(); renderMore(); applyTheme(); }
+
+/* ---------- Bottom sheet ---------- */
+const sheet = $("#sheet"), sheetIn = $("#sheetIn");
+let sheetLayerId = null;
+function openSheet(html){ sheetIn.innerHTML = html; if (!sheet.open) sheet.showModal(); }
+function closeSheet(){ sheetLayerId = null; if (sheet.open) sheet.close(); }
+sheet.addEventListener("click", e => { if (e.target === sheet) closeSheet(); });
+sheet.addEventListener("close", () => { sheetLayerId = null; });
+
+function formSheet({title, fields, submit, onSubmit, onDelete}){
+  sheetLayerId = null;
+  const html = `<button class="btn small close-x" data-close>${esc(t("close"))}</button><h2>${esc(title)}</h2>
+    <form id="sf">` + fields.map(f => {
+      const v = esc(f.value ?? "");
+      let input;
+      if (f.type === "textarea") input = `<textarea name="${f.name}">${v}</textarea>`;
+      else if (f.type === "select") input = `<select name="${f.name}">` + f.options.map(o =>
+        `<option value="${esc(o[0])}"${o[0] === f.value ? " selected" : ""}>${esc(o[1])}</option>`).join("") + `</select>`;
+      else input = `<input name="${f.name}" type="${f.type||"text"}" value="${v}" ${f.required ? "required" : ""}>`;
+      return `<label class="f">${esc(f.label)}${input}</label>`;
+    }).join("") +
+    `<div class="row"><button class="btn primary" type="submit">${esc(submit)}</button>` +
+    (onDelete ? `<button class="btn danger" type="button" id="sfDel">${esc(t("del"))}</button>` : "") + `</div></form>`;
+  openSheet(html);
+  $("#sf").addEventListener("submit", e => { e.preventDefault(); onSubmit(Object.fromEntries(new FormData(e.target).entries())); });
+  if (onDelete) $("#sfDel").addEventListener("click", onDelete);
+}
+const kindOptions = () => Object.keys(KIND_KEYS).map(k => [k, kindLabel(k)]);
+
+/* ---------- Layer detail ---------- */
+function openLayer(id){
+  const l = state.layers.find(x => x.id === id); if (!l) return closeSheet();
+  sheetLayerId = id;
+  const idx = state.layers.indexOf(l);
+  const seg = [["new","segNew"],["exploring","segExploring"],["explored","segExplored"]].map(([k,s]) =>
+    `<button type="button" data-status="${k}" aria-pressed="${l.status === k}">${esc(t(s))}</button>`).join("");
+  const res = l.res.length ? l.res.map(r =>
+    `<div class="res"><div><span class="kind">${esc(kindLabel(r.kind))}</span><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(resLabel(r))}</a></div>
+     <button class="btn small" data-remove-res="${r.id}">${esc(t("remove"))}</button></div>`).join("")
+    : `<p class="empty">${esc(t("noLinks"))}</p>`;
+  openSheet(`
+    <button class="btn small close-x" data-close>${esc(t("close"))}</button>
+    <h2><span class="swatch" style="background:${esc(l.color)}"></span>${esc(layerTitle(l))}</h2>
+    <div class="seg" id="statusSeg">${seg}</div>
+    <h3>${esc(t("links"))}</h3>${res}
+    <div class="row" style="margin-top:10px"><button class="btn small" id="addRes">${esc(t("addLink"))}</button></div>
+    <h3>${esc(t("layerNotes"))}</h3>
+    <label class="f"><textarea id="layerNote" placeholder="${esc(t("notePh"))}">${esc(l.note)}</textarea></label>
+    <h3>${esc(t("arrange"))}</h3>
+    <div class="row">
+      <button class="btn small" id="mvDown" ${idx === 0 ? "disabled" : ""}>${esc(t("moveLower"))}</button>
+      <button class="btn small" id="mvUp" ${idx === state.layers.length - 1 ? "disabled" : ""}>${esc(t("moveHigher"))}</button>
+      <button class="btn small" id="recolour">${esc(t("recolour"))}</button>
+      <button class="btn small" id="rename">${esc(t("rename"))}</button>
+      <button class="btn small danger" id="delLayer">${esc(t("deleteLayer"))}</button>
+    </div>`);
+  sheetLayerId = id;
+
+  $("#statusSeg").addEventListener("click", e => {
+    const k = e.target.dataset.status; if (!k) return;
+    l.status = k; save(); renderStrata(); openLayer(id);
+  });
+  let tm; $("#layerNote").addEventListener("input", e => { clearTimeout(tm); tm = setTimeout(() => { l.note = e.target.value; save(); }, 400); });
+  sheetIn.querySelectorAll("[data-remove-res]").forEach(b => b.addEventListener("click", () => {
+    if (!confirm(t("confirmRemoveLink"))) return;
+    l.res = l.res.filter(r => r.id !== b.dataset.removeRes); save(); openLayer(id);
+  }));
+  $("#addRes").addEventListener("click", () => formSheet({
+    title: t("addLinkTo", {t: layerTitle(l)}), submit: t("addLinkBtn"),
+    fields: [{name:"label", label:t("name"), required:true}, {name:"url", label:t("url"), type:"url", required:true},
+             {name:"kind", label:t("type"), type:"select", value:"read", options:kindOptions()}],
+    onSubmit: d => { l.res.push({id: uid(), label: d.label.trim() || d.url, url: cleanUrl(d.url), kind: d.kind}); save(); openLayer(id); }
+  }));
+  const move = dir => { const i = state.layers.indexOf(l), j = i + dir; if (j < 0 || j >= state.layers.length) return;
+    [state.layers[i], state.layers[j]] = [state.layers[j], state.layers[i]]; save(); renderStrata(); openLayer(id); };
+  $("#mvDown").addEventListener("click", () => move(-1));
+  $("#mvUp").addEventListener("click", () => move(1));
+  $("#recolour").addEventListener("click", () => { const k = COLORS.indexOf(l.color); l.color = COLORS[(k + 1) % COLORS.length]; save(); renderStrata(); openLayer(id); });
+  $("#rename").addEventListener("click", () => formSheet({
+    title: t("renameTitle"), submit: t("saveName"), fields: [{name:"title", label:t("name"), value:layerTitle(l), required:true}],
+    onSubmit: d => { const v = d.title.trim(); if (v) { l.title = v; l.renamed = true; } save(); renderStrata(); renderNotes(); openLayer(id); }
+  }));
+  $("#delLayer").addEventListener("click", () => {
+    if (!confirm(t("confirmDeleteLayer", {t: layerTitle(l)}))) return;
+    state.layers = state.layers.filter(x => x.id !== id); save(); renderStrata(); renderNotes(); closeSheet();
+  });
+}
+
+/* ---------- Field notes ---------- */
+function openNote(id){
+  const n = id ? state.notes.find(x => x.id === id) : null;
+  formSheet({
+    title: n ? t("editNote") : t("newNote"), submit: n ? t("saveNote") : t("addNoteBtn"),
+    fields: [
+      {name:"text", label:t("noteLbl"), type:"textarea", value: n ? n.text : ""},
+      {name:"date", label:t("date"), type:"date", value: n ? n.date : today()},
+      {name:"place", label:t("place"), value: n ? n.place : ""},
+      {name:"layerId", label:t("layerOpt"), type:"select", value: n ? (n.layerId || "") : "",
+       options: [["", t("none")], ...state.layers.map(l => [l.id, layerTitle(l)])]}
+    ],
+    onSubmit: d => {
+      if (!d.text.trim()) { closeSheet(); return; }
+      if (n) Object.assign(n, d); else state.notes.push({id: uid(), ...d});
+      save(); renderNotes(); closeSheet();
+    },
+    onDelete: n ? () => { if (!confirm(t("confirmDeleteNote"))) return; state.notes = state.notes.filter(x => x.id !== id); save(); renderNotes(); closeSheet(); } : null
+  });
+}
+
+/* ---------- Events ---------- */
+document.addEventListener("click", e => { if (e.target.closest("[data-close]")) closeSheet(); });
+$("#column").addEventListener("click", e => { const b = e.target.closest(".layer"); if (b) openLayer(b.dataset.id); });
+$("#notes").addEventListener("click", e => { const b = e.target.closest(".note"); if (b) openNote(b.dataset.id); });
+$("#addNote").addEventListener("click", () => openNote(null));
+$("#addLayer").addEventListener("click", () => formSheet({
+  title: t("addLayer"), submit: t("addLayerBtn"), fields: [{name:"title", label:t("whatExplore"), required:true}],
+  onSubmit: d => { state.layers.push({id: uid(), key: null, title: d.title.trim(), renamed: true, color: COLORS[state.layers.length % COLORS.length], status: "new", note: "", res: []});
+    save(); renderStrata(); closeSheet(); }
+}));
+$("#addLib").addEventListener("click", () => formSheet({
+  title: t("addLib"), submit: t("add"),
+  fields: [{name:"label", label:t("name"), required:true}, {name:"url", label:t("url"), type:"url", required:true},
+           {name:"kind", label:t("type"), type:"select", value:"read", options:kindOptions()},
+           {name:"note", label:t("shortNote")}],
+  onSubmit: d => { state.library.push({id: uid(), label: d.label.trim() || d.url, url: cleanUrl(d.url), kind: d.kind, note: d.note.trim()}); save(); renderMore(); closeSheet(); }
+}));
+$("#library").addEventListener("click", e => {
+  const id = e.target.dataset.removeLib; if (!id) return;
+  if (!confirm(t("confirmRemoveLib"))) return;
+  state.library = state.library.filter(r => r.id !== id); save(); renderMore();
+});
+$("#themeSeg").addEventListener("click", e => { const th = e.target.dataset.theme; if (!th) return; state.theme = th; save(); renderMore(); applyTheme(); });
+document.querySelectorAll(".langSeg").forEach(seg => seg.addEventListener("click", e => {
+  const lg = e.target.dataset.lang; if (!lg || lg === state.lang) return;
+  state.lang = lg; save(); renderAll();
+  if (sheetLayerId) openLayer(sheetLayerId);
+}));
+
+document.querySelectorAll("nav.tabs button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("nav.tabs button").forEach(x => x.removeAttribute("aria-current"));
+  b.setAttribute("aria-current", "page");
+  document.querySelectorAll(".tab").forEach(tb => tb.hidden = tb.id !== "tab-" + b.dataset.tab);
+  window.scrollTo(0, 0);
+}));
+
+$("#exportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type: "application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = t("backupFilename") + today() + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+$("#importBtn").addEventListener("click", () => $("#importFile").click());
+$("#importFile").addEventListener("change", e => {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!d || !Array.isArray(d.layers)) throw new Error("not a Strata backup");
+      if (!confirm(t("confirmRestore"))) return;
+      state = normalise(d); state.welcomed = true; save(); renderAll();
+      alert(t("restored"));
+    } catch (err) { alert(t("badBackup")); }
+    e.target.value = "";
+  };
+  r.readAsText(file);
+});
+$("#resetBtn").addEventListener("click", () => {
+  if (!confirm(t("confirmReset"))) return;
+  const keep = {theme: state.theme, lang: state.lang};
+  state = seedState(); state.welcomed = true; Object.assign(state, keep); save(); renderAll();
+});
+
+/* ---------- Start ---------- */
+function scrollToNext(){
+  const next = state.layers.find(l => l.status !== "explored");
+  const el = next && document.querySelector(`.layer[data-id="${next.id}"]`);
+  if (el) el.scrollIntoView({block: "center"});
+}
+renderAll();
+if (!state.welcomed){
+  openSheet(`<h2>${GIFT.to ? esc(t("forName", {name: GIFT.to})) : esc(t("hello"))}</h2>
+    <div class="gift">${giftHTML()}</div>
+    <div class="row" style="margin-top:16px"><button class="btn primary" data-close>${esc(t("open"))}</button></div>`);
+  sheet.addEventListener("close", scrollToNext, {once: true});
+  state.welcomed = true; save();
+} else {
+  scrollToNext();
+}
+</script>
+</body>
+</html>
